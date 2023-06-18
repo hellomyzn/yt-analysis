@@ -1,0 +1,71 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+  user:
+    format: '[%(levelname)s] [%(asctime)s] %(name)s {%(pathname)s@%(funcName)s:%(lineno)d} : %(message)s'
+    datefmt: '%H:%M:%S'
+  simple:
+    format: '[%(levelname)s] [%(asctime)s] %(name)s {%(pathname)s@%(funcName)s:%(lineno)d} : %(message)s'
+    datefmt: '%m/%d/%Y %H:%M:%S'
+handlers:
+  console:
+    class: logging.StreamHandler # sends logging output to streams such as sys.stdout, sys.stderr
+    level: DEBUG
+    formatter: user
+    stream: 'ext://sys.stdout'
+  info_file_handler:
+    class: logging.FileHandler
+    level: INFO
+    formatter: simple
+    filename: src/logs/info.log
+    encoding: utf8
+    mode: 'w'
+  error_file_handler:
+    class: logging.FileHandler
+    level: ERROR
+    formatter: simple
+    filename: src/logs/errors/errors.log
+    encoding: utf8
+    mode: 'w'
+  warning_file_handler:
+    class: logging.FileHandler
+    level: WARNING
+    formatter: simple
+    filename: src/logs/warnings/warnings.log
+    encoding: utf8
+    mode: 'w'
+  debug_file_handler:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: simple
+    filename: src/logs/debugs/debugs.log
+    encoding: utf8
+    mode: 'w'
+  root_file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: simple
+    filename: src/logs/root/root.log
+    maxBytes: 10485760
+    backupCount: 20
+    encoding: utf8
+loggers:
+  production:
+    level: DEBUG
+    handlers:
+      - debug_file_handler
+      - info_file_handler
+      - error_file_handler
+      - warning_file_handler
+      - root_file_handler
+    propagate: no
+  console:
+    level: DEBUG
+    handlers:
+      - console
+    propagate: no
+root: # root logger
+  level: DEBUG
+  handlers:
+    - root_file_handler
+

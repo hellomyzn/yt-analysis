@@ -1,4 +1,6 @@
 src/config.ini
 src/src/data/*
+src/src/logs/*
 __pycache__
 .viminfo
+.bash_history
