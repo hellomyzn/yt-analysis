@@ -1,4 +1,4 @@
-src/config.ini
+src/config/config.ini
 src/src/data/*
 src/src/logs/*
 __pycache__

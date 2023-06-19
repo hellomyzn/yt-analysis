@@ -4,7 +4,7 @@ import yaml
 import os
 
 
-class SetUpLogging():
+class Logger():
     @staticmethod
     def setup_logging(config_path, default_level=logging.info):
         root_dir = os.path.dirname(os.path.abspath('__file__'))
