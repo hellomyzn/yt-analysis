@@ -4,3 +4,4 @@ src/src/logs/*
 __pycache__
 .viminfo
 .bash_history
+.DS_Store
