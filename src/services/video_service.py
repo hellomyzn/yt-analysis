@@ -1,7 +1,9 @@
 from configparser import ConfigParser
 from datetime import datetime
-import json
 import logging
+
+from repositories.videos.json_video_repository import JsonVideoRepository
+from repositories.videos.csv_video_repository import CsvVideoRepository
 
 logger_pro = logging.getLogger('production')
 
@@ -12,13 +14,14 @@ class VideoService(object):
         CONFIG = ConfigParser()
         CONFIG.read(config_file)
 
-        self.watch_history_path = CONFIG['PATH']['WATCH_HISTORY']
+        self.json_repo = JsonVideoRepository()
+        self.csv_repo = CsvVideoRepository()
 
 
     def retrieve_videos(self) -> list:
         # get json video data
-        json_open = open(self.watch_history_path, 'r')
-        watch_history_json_data = json.load(json_open)
+
+        watch_history_json_data = self.json_repo.get_all()
 
         # retreive specific data
         videos = []
@@ -44,12 +47,26 @@ class VideoService(object):
 
             videos.append([title, channel, url, timestamp])
 
-        # sort by old one
-        videos.reverse()
-
         logger_pro.info(f'videos: {len(videos)}')
         logger_pro.info(f'ads: {len(video_ads)}')
         logger_pro.info(f'unable: {len(videos_unable)}')
 
         return videos, video_ads, videos_unable
-    
+
+    def retrieve_new_videos(self, all_videos: list) -> list:
+
+        # # get latest date
+        latest_video = self.csv_repo.get_latest_video()
+        latest_date_str = latest_video[0][4]
+        latest_date = datetime.strptime(latest_date_str, '%Y-%m-%d %H:%M:%S')
+        print(latest_date)
+
+        # new videos
+        new_videos = []
+        for i, v in enumerate(all_videos):
+            timestamp = v[3]
+            if timestamp > latest_date:
+                new_videos.append(v)
+
+        return new_videos
+
