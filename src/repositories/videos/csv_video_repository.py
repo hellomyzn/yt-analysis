@@ -32,3 +32,16 @@ class CsvVideoRepository(object):
     def get_latest_video(self) -> list:
         latest_video = CsvVideoRepository.tail(self.path, 1)
         return latest_video
+
+    def add(self, videos: list) -> None:
+        # get number of row in csv
+        id = int(sum(1 for line in open(self.path, 'rb')))
+
+        # add new videos to csv
+        for v in videos:
+            with open (self.path, 'a', encoding='utf_8', newline='') as f:
+                writer = csv.writer(f)
+                v.insert(0, id)
+                writer.writerow(v)
+                id += 1
+        return None

@@ -54,19 +54,27 @@ class VideoService(object):
         return videos, video_ads, videos_unable
 
     def retrieve_new_videos(self, all_videos: list) -> list:
+        # TODO: test case for if there is no data on csv
 
         # # get latest date
         latest_video = self.csv_repo.get_latest_video()
+
+        if not latest_video:
+            return all_videos
+
         latest_date_str = latest_video[0][4]
         latest_date = datetime.strptime(latest_date_str, '%Y-%m-%d %H:%M:%S')
-        print(latest_date)
 
-        # new videos
         new_videos = []
-        for i, v in enumerate(all_videos):
+        for v in all_videos:
             timestamp = v[3]
             if timestamp > latest_date:
                 new_videos.append(v)
 
         return new_videos
+        
+
+
+    def add_new_videos(self, videos) -> None:
+        self.csv_repo.add(videos)
 
