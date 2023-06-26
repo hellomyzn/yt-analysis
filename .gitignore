@@ -1,7 +1,9 @@
 src/config/config.ini
 src/src/data/*
 src/src/logs/*
+src/src/csv/*
+src/src/json/*
 __pycache__
 .viminfo
-.bash_history
+*.bash_history
 .DS_Store
