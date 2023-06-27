@@ -4,6 +4,7 @@ import logging
 
 from repositories.videos.json_video_repository import JsonVideoRepository
 from repositories.videos.csv_video_repository import CsvVideoRepository
+from repositories.videos.gss_video_repository import GssVideoRepository
 
 logger_pro = logging.getLogger('production')
 
@@ -16,6 +17,7 @@ class VideoService(object):
 
         self.json_repo = JsonVideoRepository()
         self.csv_repo = CsvVideoRepository()
+        self.gss_repo = GssVideoRepository()
 
 
     def retrieve_videos(self) -> list:
@@ -37,7 +39,7 @@ class VideoService(object):
                 videos_unable.append(w)
                 continue
 
-            title = w['title']
+            title = w['title'].strip("Watched ")
             channel = w['subtitles'][0]['name']
             url = w['titleUrl']
             # 2023-06-18T12:12:24.318Z -> 2023-06-18 12:12:24
@@ -72,9 +74,37 @@ class VideoService(object):
                 new_videos.append(v)
 
         return new_videos
-        
 
+    @classmethod
+    def get_csv_next_id(cls, latest_video: list) -> int:
+        if not latest_video:
+            return 1
+
+        return int(latest_video[0][0]) + 1
+
+    @classmethod
+    def get_gss_next_id(cls, ids: list) -> int:
+        if len(ids) == 1:
+            return 1
+
+        return int(ids[-1]) + 1
 
     def add_new_videos(self, videos) -> None:
-        self.csv_repo.add(videos)
+        lv = self.csv_repo.get_latest_video()
+        csv_next_id = VideoService.get_csv_next_id(lv)
 
+        header_gap = 1
+        ids = self.gss_repo.retrieve_column_values(2)
+        gss_next_id = VideoService.get_gss_next_id(ids)
+        gss_next_empty_row = int(len(ids)) + header_gap
+
+        for video in videos:
+            video_to_csv = [csv_next_id] + video
+            self.csv_repo.add(video_to_csv)
+
+            video_to_gss = [gss_next_id] + video
+            self.gss_repo.add(video_to_gss, gss_next_empty_row)
+
+            csv_next_id += 1
+            gss_next_id += 1
+            gss_next_empty_row += 1

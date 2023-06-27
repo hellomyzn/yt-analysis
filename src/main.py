@@ -1,5 +1,7 @@
-from repositories.csv.video_repository import CsvVideoRepository
-from repositories.gss.video_repository import GssVideoRepository
+from controllers.yt_analysis_controller import YtAnalysisController
 
 if __name__ == '__main__':
-    print("hoge")
+    yta = YtAnalysisController()
+    yta.update()
+
+

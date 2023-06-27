@@ -27,6 +27,7 @@ class YtAnalysisController(object):
             vs.add_new_videos(new_videos)
         else:
             print("there is no new videos")
+            vs.add_new_videos(new_videos)
 
         # get search data
         sks = SearchKeywordService()
