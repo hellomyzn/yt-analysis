@@ -47,17 +47,25 @@ class GssVideoRepository(object):
         return cols
 
     def add(self, video: list, row: int) -> None:
+        import requests
 
         for col, value in enumerate(video, start=2):
             try:
                 self.ws.update_cell(row, col, str(value))
                 time.sleep(self.sleep_time_sec)
             except gspread.exceptions.APIError as exc:
-                logger_pro(f"APIError: {exc}")
-                time.sleep(30)
+                print(f"API ERROR: {exc}")
+                time.sleep(60)
                 self.ws.update_cell(row, col, str(value))
-                logger_pro(f"Successed: row: {row}, col: {col}, value: {value}")
+                print(f"Successed: row: {row}, col: {col}, value: {value}")
                 time.sleep(self.sleep_time_sec)
+            except requests.exceptions.ConnectionError as exc:
+                print(f"Connection Error: {exc}")
+                time.sleep(60)
+                self.ws.update_cell(row, col, str(value))
+                print(f"Successed: row: {row}, col: {col}, value: {value}")
+                time.sleep(self.sleep_time_sec)
+
 
         return None
 
