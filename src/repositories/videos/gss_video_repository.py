@@ -16,7 +16,7 @@ class GssVideoRepository(object):
             CONFIG['GSPREAD']['JSONF_PATH'],
             CONFIG['GSPREAD']['SPREADSHEET_KEY'],
             CONFIG['GSPREAD']['SPREADSHEET_NAME_VIDEO'])
-        self.sleep_time_sec = 0.8
+        self.sleep_time_sec = 1
 
     @classmethod
     def connect_gspread(cls, jsonf: str, key: str, sheet_name: str) -> gspread:
@@ -49,8 +49,15 @@ class GssVideoRepository(object):
     def add(self, video: list, row: int) -> None:
 
         for col, value in enumerate(video, start=2):
-            self.ws.update_cell(row, col, str(value))
-            time.sleep(self.sleep_time_sec)
+            try:
+                self.ws.update_cell(row, col, str(value))
+                time.sleep(self.sleep_time_sec)
+            except gspread.exceptions.APIError as exc:
+                logger_pro(f"APIError: {exc}")
+                time.sleep(30)
+                self.ws.update_cell(row, col, str(value))
+                logger_pro(f"Successed: row: {row}, col: {col}, value: {value}")
+                time.sleep(self.sleep_time_sec)
 
         return None
 
