@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from datetime import datetime
+import datetime as dt
 import logging
 
 from repositories.videos.json_video_repository import JsonVideoRepository
@@ -8,19 +9,20 @@ from repositories.videos.gss_video_repository import GssVideoRepository
 
 logger_pro = logging.getLogger('production')
 
-class VideoService(object):
+
+class VideoService():
+    """Video Service"""
 
     def __init__(self):
         config_file = 'config/config.ini'
-        CONFIG = ConfigParser()
-        CONFIG.read(config_file)
+        config = ConfigParser()
+        config.read(config_file)
 
         self.json_repo = JsonVideoRepository()
         self.csv_repo = CsvVideoRepository()
         self.gss_repo = GssVideoRepository()
 
-
-    def retrieve_videos(self) -> list:
+    def retrieve_videos(self) -> tuple:
         # get json video data
 
         watch_history_json_data = self.json_repo.get_all()
@@ -39,15 +41,27 @@ class VideoService(object):
                 videos_unable.append(w)
                 continue
 
-            title = w['title'].strip("Watched ")
+            title_prefix = w["title"].split()[0]
+            if title_prefix != "Watched":
+                continue
+
+
+            title = w['title'].lstrip("Watched ")
+
+            if title == "Answered survey question":
+                video_ads.append(w)
+                continue
+
             channel = w['subtitles'][0]['name']
             url = w['titleUrl']
             # 2023-06-18T12:12:24.318Z -> 2023-06-18 12:12:24
             # 2023-06-12T21:33:12Z -> 2023-06-12 21:33:12
             timestamp_str = w['time'].replace("T", " ").strip("Z").split('.')[0]
             timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+            time_gap = dt.timedelta(hours=9)
+            timestamp_jp = timestamp + time_gap
 
-            videos.append([title, channel, url, timestamp])
+            videos.append([title, channel, url, timestamp_jp])
 
         logger_pro.info(f'videos: {len(videos)}')
         logger_pro.info(f'ads: {len(video_ads)}')
@@ -99,10 +113,13 @@ class VideoService(object):
         gss_next_empty_row = int(len(ids)) + header_gap
 
         for video in videos:
-            video_to_csv = [csv_next_id] + video
-            self.csv_repo.add(video_to_csv)
+            video_to_csv = video.copy()
+            video_to_csv.insert(0, csv_next_id)
 
-            video_to_gss = [gss_next_id] + video
+            video_to_gss = video.copy()
+            video_to_gss.insert(0, gss_next_id)
+
+            self.csv_repo.add(video_to_csv)
             self.gss_repo.add(video_to_gss, gss_next_empty_row)
 
             csv_next_id += 1
