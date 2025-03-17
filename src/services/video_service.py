@@ -78,7 +78,7 @@ class VideoService():
         if not latest_video:
             return all_videos
 
-        latest_date_str = latest_video[0][4]
+        latest_date_str = latest_video[0][5]
         latest_date = datetime.strptime(latest_date_str, '%Y-%m-%d %H:%M:%S')
 
         new_videos = []
