@@ -1,6 +1,7 @@
 import csv
 from configparser import ConfigParser
 import logging
+from config import CSV_DIR_PATH
 
 logger_pro = logging.getLogger('production')
 
@@ -9,7 +10,7 @@ class CsvVideoRepository(object):
         config_file = 'config/config.ini'
         CONFIG = ConfigParser()
         CONFIG.read(config_file)
-        self.path = CONFIG['PATH']['VIDEO_CSV']
+        self.path = f"{CSV_DIR_PATH}/videos.csv"
 
     @classmethod
     def tail(cls, path: str, n: int) -> list:

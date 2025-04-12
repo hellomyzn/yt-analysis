@@ -1,10 +1,26 @@
 version: '3'
 services:
   python3:
-    restart: always
-    build: ./infra/docker/python/
-    container_name: 'yt-analysis'
-    working_dir: '/root/'
+    container_name: ${PROJECT_NAME:-default}
+    hostname: ${PROJECT_NAME:-default}
+    build:
+      context: .
+      dockerfile: ./infra/docker/python/Dockerfile
+      args:
+        USER_NAME: ${USER_NAME-myzn}
+        GROUP_NAME: ${GROUP_NAME-myzn}
+        UID: ${UID-1000}
+        GID: ${GID-1000}
+        PROJECT_DIR: ${PROJECT_DIR-./src}
+        WORKDIR: ${WORKDIR-/opt/work}
+        CSV_DIR: ${CSV_DIR-/opt/csv}
+    working_dir: ${WORKDIR-/opt/work}
     tty: true
+    restart: always
     volumes:
-      - ./src/:/root
+      - type: bind
+        source: ${PROJECT_DIR-./src}/
+        target: ${WORKDIR-/opt/work}
+      - type: bind
+        source: ${FOOTPRINTS_DIR}/videos.csv
+        target: ${CSV_DIR-/opt/csv}/videos.csv
