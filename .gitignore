@@ -7,3 +7,5 @@ __pycache__
 *.bash_history
 .DS_Store
 .python_history
+
+!/src/src/**/.gitkeep
