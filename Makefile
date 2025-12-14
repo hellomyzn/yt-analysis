@@ -21,4 +21,10 @@ python:
 	docker-compose exec python3 bash
 start:
 	@make up
+run:
+	@make up
+	@echo "Waiting for container to be ready..."
+	@sleep 2
+	docker-compose exec python3 bash -c "python main.py"
+	@make down
 
